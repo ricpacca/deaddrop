@@ -6,14 +6,15 @@ CYCLES measure_one_block_access_time(ADDR_PTR addr)
 {
     CYCLES cycles;
 
-    asm volatile("mov %1, %%r8\n\t"
-            "lfence\n\t"
-            "rdtsc\n\t"
-            "mov %%eax, %%edi\n\t"
-            "mov (%%r8), %%r8\n\t"
-            "lfence\n\t"
-            "rdtsc\n\t"
-            "sub %%edi, %%eax\n\t"
+    asm volatile(
+        "mov %1, %%r8\n\t"
+        "lfence\n\t"
+        "rdtsc\n\t"             /* returns the time (t1) in eax */
+        "mov %%eax, %%edi\n\t"  /* moves eax (t1) into edi */
+        "mov (%%r8), %%r8\n\t"  /* accesses addr */
+        "lfence\n\t"
+        "rdtsc\n\t"             /* returns the time (t2) in eax */
+        "sub %%edi, %%eax\n\t"  /* eax = eax (t2) - edi (t1) */
     : "=a"(cycles) /*output*/
     : "r"(addr)
     : "r8", "edi");
