@@ -56,25 +56,30 @@ and the `-w` parameter in the receiver, but the accuracy may become worse.
 
 ## Description of the covert channel
 
-We started our implementation using the ideas explained in the paper [C5: Cross-Cores Cache Covert Channel][c5] by
-C. Maurice et al. presented at DIMVA 2015. The covert channel described in that paper works in three steps:
+~We started our implementation using the ideas explained in the paper [C5: Cross-Cores Cache Covert Channel][c5] by
+C. Maurice et al. presented at DIMVA 2015. The covert channel described in that paper works in three steps:~
 
-1. The receiver probes one set of lines repeatedly: the access is fast because the data is in its L1 (and the LLC by
-inclusive feature) cache.
-2. The sender fills the LLC, thus evicting the set of the receiver from the LLC and its private L1 cache.
-3. The receiver probes the same set: the access is slow because the data must be retrieved from RAM.
+1. ~The receiver probes one set of lines repeatedly: the access is fast because the data is in its L1 (and the LLC by
+inclusive feature) cache.~
+2. ~The sender fills the LLC, thus evicting the set of the receiver from the LLC and its private L1 cache.~
+3. ~The receiver probes the same set: the access is slow because the data must be retrieved from RAM.~
 
-However, this covert channel had two limitations:
+~However, this covert channel had two limitations:~
 
-1. It achieved a maximum speed of only about ~161 Bytes/second, since it required the sender to evict the entire LLC.
-2. It was easily susceptible to transmission errors.
+1. ~It achieved a maximum speed of only about 161 Bytes/second, since it required the sender to evict the entire LLC.~
+2. ~It was easily susceptible to transmission errors.~
 
-We fixed the aforementioned limitations by:
+~We fixed the aforementioned limitations by:~
 
-1. Making the sender evict (in our case flush) only a small fraction of the LLC, precisely a set of addresses whose
+1. ~Making the sender evict (in our case flush) only a small fraction of the LLC, precisely a set of addresses whose
 cache set index is `0`. The receiver will also only probe addresses with the same property. This allowed us to 
-considerably speed up the covert channel.
-2. Adding synchronization between sender and receiver, so to prevent transmission errors.
+considerably speed up the covert channel.~
+2. ~Adding synchronization between sender and receiver, so to prevent transmission errors.~
+
+Recently, we learned that our covert channel actually works because of Flush+Reload.
+Our sender and receiver share memory because of demand paging.
+When the buffers are allocated in both processes, they are mapped to the zero page by the OS (until initialization).
+Since we never initialize the contents of the buffers, they are effectively the same as shared memory.
 
 ## Extensions implemented
 
